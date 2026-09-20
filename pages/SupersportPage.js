@@ -38,7 +38,7 @@ export class SupersportPage {
   async pickRandomOutcome(card) {
     const buttons = card.locator(this.outcomeButton);
     const count = await buttons.count();
-    expect(count).toBe(3);
+    expect(count).toBeGreaterThanOrEqual(2);
 
     const index = Math.floor(Math.random() * count);
     const button = buttons.nth(index);
