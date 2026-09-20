@@ -4,16 +4,16 @@ export class SupersportPage {
   constructor(page) {
     this.page = page;
 
-    this.matchCard = '.top-hot-match-module_topHotCard__NYsFg';
-    this.teamName = '.top-hot-match-module_teamName__T6wzg';
-    this.outcomeButton = '.bet-button-module_betButton__5u4fw';
-    this.outcomeName = '.bet-button-module_outcomeName__NEnIO';
-    this.outcomeOdds = '.bet-button-module_outcomeOdds__7sscT';
+    this.matchCard = '[class*="top-hot-match-module_topHotCard__"]';
+    this.teamName = '[class*="top-hot-match-module_teamName__"]';
+    this.outcomeButton = '[class*="bet-button-module_betButton__"]';
+    this.outcomeName = '[class*="bet-button-module_outcomeName__"]';
+    this.outcomeOdds = '[class*="bet-button-module_outcomeOdds__"]';
     this.stakeInput = 'input.custom-input[inputmode="decimal"]';
     this.slipTecaj =
-      '.SlipPreparationFinancialHeader-module_value__NjUAA.SlipPreparationFinancialHeader-module_sub-heading__6SNAi';
+      '[class*="SlipPreparationFinancialHeader-module_value__"][class*="SlipPreparationFinancialHeader-module_sub-heading__"]';
     this.slipPayout =
-      '.SlipPreparationFinancialHeader-module_value__NjUAA.SlipPreparationFinancialHeader-module_heading__UW-QQ';
+      '[class*="SlipPreparationFinancialHeader-module_value__"][class*="SlipPreparationFinancialHeader-module_heading__"]';
   }
 
   async getMatchCount() {
