@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { SupersportPage } from '../pages/SupersportPage';
 
-test('Nasumičan odabir ishoda, unos uloga i provjera dobitka', async ({ page }) => {
+test('Random outcome selection, stake entry and payout validation', async ({ page }) => {
   const supersport = new SupersportPage(page);
 
   await page.goto('/');
@@ -10,10 +10,10 @@ test('Nasumičan odabir ishoda, unos uloga i provjera dobitka', async ({ page })
   expect(matchCount).toBeGreaterThan(0);
 
   const { card, teamNames } = await supersport.pickRandomMatch();
-  console.log(`Odabrana utakmica: ${teamNames.join(' - ')}`);
+  console.log(`Selected match: ${teamNames.join(' - ')}`);
 
   const { button, name, oddsText, odds } = await supersport.pickRandomOutcome(card);
-  console.log(`Odabran ishod: ${name}, koeficijent: ${odds}`);
+  console.log(`Selected outcome: ${name}, odds: ${odds}`);
 
   await button.click();
 
@@ -22,13 +22,13 @@ test('Nasumičan odabir ishoda, unos uloga i provjera dobitka', async ({ page })
   const stake = 10;
   await supersport.enterStake(stake);
 
-  const tecaj = await supersport.getSlipTecaj();
-  console.log(`Tečaj u listiću: ${tecaj}, koeficijent s gumba: ${odds}`);
-  expect(tecaj).toBeCloseTo(odds, 2);
+  const slipOdds = await supersport.getSlipOdds();
+  console.log(`Slip odds: ${slipOdds}, button odds: ${odds}`);
+  expect(slipOdds).toBeCloseTo(odds, 2);
 
   const payout = await supersport.getSlipPayout();
-  const expectedPayout = supersport.calculateExpectedPayout(stake, tecaj);
-  console.log(`Ev. isplata (UI): ${payout}, Izračunato: ${expectedPayout}`);
+  const expectedPayout = supersport.calculateExpectedPayout(stake, slipOdds);
+  console.log(`Payout (UI): ${payout}, Calculated: ${expectedPayout}`);
   expect(payout).toBeCloseTo(expectedPayout, 2);
 
   await page.getByRole('button', { name: 'PRIPREMI ZA UPLATU' }).click();

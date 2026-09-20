@@ -10,7 +10,7 @@ export class SupersportPage {
     this.outcomeName = '[class*="bet-button-module_outcomeName__"]';
     this.outcomeOdds = '[class*="bet-button-module_outcomeOdds__"]';
     this.stakeInput = 'input.custom-input[inputmode="decimal"]';
-    this.slipTecaj =
+    this.slipOdds =
       '[class*="SlipPreparationFinancialHeader-module_value__"][class*="SlipPreparationFinancialHeader-module_sub-heading__"]';
     this.slipPayout =
       '[class*="SlipPreparationFinancialHeader-module_value__"][class*="SlipPreparationFinancialHeader-module_heading__"]';
@@ -56,8 +56,8 @@ export class SupersportPage {
     await input.fill(amount.toString());
   }
 
-  async getSlipTecaj() {
-    const locator = this.page.locator(this.slipTecaj);
+  async getSlipOdds() {
+    const locator = this.page.locator(this.slipOdds);
     await expect(locator).toBeVisible();
     const text = (await locator.innerText()).trim();
     return parseFloat(text.replace(',', '.'));
@@ -76,32 +76,33 @@ export class SupersportPage {
     await expect(slip.getByText(oddsText, { exact: false }).first()).toBeVisible();
   }
 
-  calculateExpectedPayout(uplata, tecaj) {
-    const manipulativniTrosak = uplata * 0.05;
-    const efektivniUlog = uplata - manipulativniTrosak;
-    const bruto = efektivniUlog * tecaj;
-    const poreznaOsnovica = bruto - efektivniUlog;
+  calculateExpectedPayout(stake, odds) {
+    const handlingFee = stake * 0.05;
+    const effectiveStake = stake - handlingFee;
+    const gross = effectiveStake * odds;
+    const taxableAmount = gross - effectiveStake;
 
-    const razredi = [
-      { granica: 1500, stopa: 0.10 },
-      { granica: 4000, stopa: 0.15 },
-      { granica: 66361.40, stopa: 0.20 },
-      { granica: Infinity, stopa: 0.30 },
+    const brackets = [
+      { limit: 1500, rate: 0.10 },
+      { limit: 4000, rate: 0.15 },
+      { limit: 66361.40, rate: 0.20 },
+      { limit: Infinity, rate: 0.30 },
     ];
 
-    let porez = 0;
-    let prethodnaGranica = 0;
-    let preostalo = poreznaOsnovica;
+    let tax = 0;
+    let previousLimit = 0;
+    let remaining = taxableAmount;
 
-    for (const { granica, stopa } of razredi) {
-      if (preostalo <= 0) break;
-      const rasponRazreda = granica - prethodnaGranica;
-      const oporezivoURazredu = Math.min(preostalo, rasponRazreda);
-      porez += oporezivoURazredu * stopa;
-      preostalo -= oporezivoURazredu;
-      prethodnaGranica = granica;
+    for (const { limit, rate } of brackets) {
+      if (remaining <= 0) break;
+      const bracketRange = limit - previousLimit;
+      const taxableInBracket = Math.min(remaining, bracketRange);
+      // round each bracket to 2 decimals, matching how the slip displays it
+      tax += Math.round(taxableInBracket * rate * 100) / 100;
+      remaining -= taxableInBracket;
+      previousLimit = limit;
     }
 
-    return parseFloat((bruto - porez).toFixed(2));
+    return parseFloat((gross - tax).toFixed(2));
   }
 }
